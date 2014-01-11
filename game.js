@@ -135,6 +135,16 @@ kallisti.on('request_card', function(data) {
 			}
 		});
 	}
+	////If i have 9 points and my chance of winning is good, issue a challenge
+	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && data.state.your_points === 9 && hand_total > (data.state.hand.length * 10)) { //Modify challenge metric....should use mean, mode, median (statistics)
+		kallisti.send({
+			type: 'move',
+			request_id: data.request_id,
+			response: {
+				type: 'offer_challenge'
+			}
+		});
+	}
 	///Issue challenge if they are going to win and I am not close
 	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && data.state.your_points < 9 && data.state.their_points === 9) { //Modify challenge metric....should use mean, mode, median (statistics)
 		kallisti.send({
