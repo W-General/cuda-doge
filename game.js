@@ -126,6 +126,7 @@ kallisti.on('request_card', function(data) {
 			}
 		});
 	}
+	////If I am up by a lot and my average in hand is 10 and there are more than 3,4,5 cards in hand, issue challenge.
 	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 10) && data.state.hand.length > 2 && (data.state.your_points - data.state.their_points) > 5) { //Modify challenge metric....should use mean, mode, median (statistics)
 		kallisti.send({
 			type: 'move',
@@ -146,7 +147,7 @@ kallisti.on('request_card', function(data) {
 		});
 	}
 	///Issue challenge if they are going to win and I am not close
-	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && data.state.your_points < 9 && data.state.their_points === 9) { //Modify challenge metric....should use mean, mode, median (statistics)
+	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && data.state.your_points < 8 && data.state.their_points === 9) { //Modify challenge metric....should use mean, mode, median (statistics)
 		kallisti.send({
 			type: 'move',
 			request_id: data.request_id,
@@ -155,7 +156,18 @@ kallisti.on('request_card', function(data) {
 			}
 		});
 	}
-	////Issue challenge if no one is very close to winning and I have a good chance of winning - card average >= 9
+	///Issue challenge if they are winning by a lot and my chances are good
+	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge &&  data.state.their_points - data.state.your_points > 4 && hand_total > (data.state.hand.length * 9)) { //Modify challenge metric....should use mean, mode, median (statistics)
+		kallisti.send({
+			type: 'move',
+			request_id: data.request_id,
+			response: {
+				type: 'offer_challenge'
+			}
+		});
+	}
+	
+	////Issue challenge if no one is very close to winning and I have a good chance of winning: card average >= 9
 	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 9) && data.state.hand.length > 2 && (data.state.your_points - data.state.their_points < 3)) { //Modify challenge metric....should use mean, mode, median (statistics)
 		kallisti.send({
 			type: 'move',
@@ -268,6 +280,15 @@ kallisti.on('challenge_offered', function(data) {
 		});
 	}
 	else if (data.state.your_tricks >= data.state.their_tricks && data.state.hand.length === 2 && hand_total > data.state.hand.length * 11) { //If there exactly 2 card and average > 11, accept
+		kallisti.send({
+			type: 'move',
+			request_id: data.request_id,
+			response: {
+				type: 'accept_challenge'
+			}
+		});
+	}
+	else if (data.state.your_tricks >= data.state.their_tricks && (data.state.their_points - data.state.your_points > 6) && hand_total > data.state.hand.length * 9) { //If there exactly 2 card and average > 11, accept
 		kallisti.send({
 			type: 'move',
 			request_id: data.request_id,
