@@ -126,7 +126,7 @@ kallisti.on('request_card', function(data) {
 			}
 		});
 	}
-	////Issue challenge if no one is very close to winning and I have a good chance of winning
+	////Issue challenge if no one is very close to winning and I have a good chance of winning - card average >= 9
 	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 9) && (data.state.your_points - data.state.their_points < 3)) { //Modify challenge metric....should use mean, mode, median (statistics)
 		kallisti.send({
 			type: 'move',
@@ -211,7 +211,34 @@ kallisti.on('challenge_offered', function(data) {
 	for (var i = 0; i < data.state.hand.length; i++) {
 		hand_total = hand_total + data.state.hand[i];
 	}
-	if (data.state.your_tricks >= data.state.their_tricks && data.state.hand.length > 1 && ((hand_total > (data.state.hand.length * 9) || data.state.their_points === 9))) { //Modify challenge metric....should use mean, mode, median (statistics)
+	if (data.state.your_tricks >= data.state.their_tricks && data.state.hand.length === 1 && data.state.hand[0] === 13) { //if i only have 1 card and I get 13, must accept.
+		kallisti.send({
+			type: 'move',
+			request_id: data.request_id,
+			response: {
+				type: 'accept_challenge'
+			}
+		});
+	}
+	else if (data.state.their_points === 9) { //if they have 9 pts and they challenge me, I must accept...
+		kallisti.send({
+			type: 'move',
+			request_id: data.request_id,
+			response: {
+				type: 'accept_challenge'
+			}
+		});
+	}
+	else if (data.state.your_tricks >= data.state.their_tricks && data.state.hand.length > 2 && hand_total > data.state.hand.length * 9) { //If there is more than 2 card and average > 9, accept
+		kallisti.send({
+			type: 'move',
+			request_id: data.request_id,
+			response: {
+				type: 'accept_challenge'
+			}
+		});
+	}
+	else if (data.state.your_tricks >= data.state.their_tricks && data.state.hand.length === 2 && hand_total > data.state.hand.length * 10) { //If there is more than 2 card and average > 10, accept
 		kallisti.send({
 			type: 'move',
 			request_id: data.request_id,
