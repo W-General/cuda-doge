@@ -106,8 +106,27 @@ kallisti.on('request_card', function(data) {
 	for (var i = 0; i < data.state.hand.length; i++) {
 		hand_total = hand_total + data.state.hand[i];
 	}
-	///Issue challenge if I am winning by a lot and card average >= 10
-	if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 10) && (data.state.your_points - data.state.their_points) > 5) { //Modify challenge metric....should use mean, mode, median (statistics)
+	///Issue challenge if I have 1-4 card and average = 13
+	if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 13) && data.state.hand.length < 5) { //Modify challenge metric....should use mean, mode, median (statistics)
+		kallisti.send({
+			type: 'move',
+			request_id: data.request_id,
+			response: {
+				type: 'offer_challenge'
+			}
+		});
+	}
+	///Issue challenge if I have 5 cards and have 13, 13, 13, 13, 12
+	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 12) && data.state.hand.length === 5) { //Modify challenge metric....should use mean, mode, median (statistics)
+		kallisti.send({
+			type: 'move',
+			request_id: data.request_id,
+			response: {
+				type: 'offer_challenge'
+			}
+		});
+	}
+	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 10) && data.state.hand.length > 2 && (data.state.your_points - data.state.their_points) > 5) { //Modify challenge metric....should use mean, mode, median (statistics)
 		kallisti.send({
 			type: 'move',
 			request_id: data.request_id,
@@ -127,7 +146,7 @@ kallisti.on('request_card', function(data) {
 		});
 	}
 	////Issue challenge if no one is very close to winning and I have a good chance of winning - card average >= 9
-	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 9) && (data.state.your_points - data.state.their_points < 3)) { //Modify challenge metric....should use mean, mode, median (statistics)
+	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 9) && data.state.hand.length > 2 && (data.state.your_points - data.state.their_points < 3)) { //Modify challenge metric....should use mean, mode, median (statistics)
 		kallisti.send({
 			type: 'move',
 			request_id: data.request_id,
@@ -229,7 +248,7 @@ kallisti.on('challenge_offered', function(data) {
 			}
 		});
 	}
-	else if (data.state.your_tricks >= data.state.their_tricks && data.state.hand.length > 2 && hand_total > data.state.hand.length * 9) { //If there is more than 2 card and average > 9, accept
+	else if (data.state.your_tricks >= data.state.their_tricks && data.state.hand.length > 2 && hand_total > data.state.hand.length * 10) { //If there is more than 2 card and average > 10, accept
 		kallisti.send({
 			type: 'move',
 			request_id: data.request_id,
@@ -238,7 +257,7 @@ kallisti.on('challenge_offered', function(data) {
 			}
 		});
 	}
-	else if (data.state.your_tricks >= data.state.their_tricks && data.state.hand.length === 2 && hand_total > data.state.hand.length * 10) { //If there is more than 2 card and average > 10, accept
+	else if (data.state.your_tricks >= data.state.their_tricks && data.state.hand.length === 2 && hand_total > data.state.hand.length * 11) { //If there exactly 2 card and average > 11, accept
 		kallisti.send({
 			type: 'move',
 			request_id: data.request_id,
