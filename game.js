@@ -106,7 +106,8 @@ kallisti.on('request_card', function(data) {
 	for (var i = 0; i < data.state.hand.length; i++) {
 		hand_total = hand_total + data.state.hand[i];
 	}
-	if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 7)   && (data.state.your_points - data.state_their_points) > 5) { //Modify challenge metric....should use mean, mode, median (statistics)
+	///Issue challenge if I am winning by a lot and card average >= 10
+	if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 10) && (data.state.your_points - data.state.their_points) > 5) { //Modify challenge metric....should use mean, mode, median (statistics)
 		kallisti.send({
 			type: 'move',
 			request_id: data.request_id,
@@ -115,6 +116,7 @@ kallisti.on('request_card', function(data) {
 			}
 		});
 	}
+	///Issue challenge if they are going to win and I am not close
 	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && data.state.your_points < 9 && data.state.their_points === 9) { //Modify challenge metric....should use mean, mode, median (statistics)
 		kallisti.send({
 			type: 'move',
@@ -124,7 +126,8 @@ kallisti.on('request_card', function(data) {
 			}
 		});
 	}
-	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 9)) { //Modify challenge metric....should use mean, mode, median (statistics)
+	////Issue challenge if no one is very close to winning and I have a good chance of winning
+	else if (data.state !== undefined && data.state.your_tricks >= data.state.their_tricks && data.state.can_challenge && hand_total > (data.state.hand.length * 9) && (data.state.your_points - data.state.their_points < 3)) { //Modify challenge metric....should use mean, mode, median (statistics)
 		kallisti.send({
 			type: 'move',
 			request_id: data.request_id,
